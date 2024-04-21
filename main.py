@@ -1,4 +1,5 @@
 import random
+import time
 
 
 def deal(players, hands, deck, community):
@@ -207,20 +208,21 @@ def main():
     # The first player is the small blind
     # The second player is the big blind
 
-    players = int(input("How much player are playing?\n"))
+    player_count: int = int(input("How many players are playing?\n"))  # Number of players
     
     money = []
-    for i in range(players):
+
+    # Gives every player 1000 money
+    for i in range(player_count):
         money.append(1000)
 
     while True:
         # 0th game state
         raised = 100
         pot = [150]
-        for i in range(players):
+        for i in range(player_count):
             pot.append([0, True])
-        order: list[str] = ["bot" for i in range(players)]
-        player_place: int = random.randint(0, players - 1)
+        player_place: int = random.randint(0, player_count - 1)
 
         deck = \
             [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 11], [0, 12], [0, 13],
@@ -236,7 +238,7 @@ def main():
         community = []
 
         combination = []
-        deal(players, hands, deck, community)
+        deal(player_count, hands, deck, community)
         print("In your hand:", str(hands[0]).strip(), sep='\n')
         pot[1][0] = 50
         money[0] -= 50
@@ -244,23 +246,28 @@ def main():
         money[1] -= 100
 
         # 1st game state
-        bet(1, players, raised, pot, money, player_place)
+        bet(1, player_count, raised, pot, money, player_place)
         print(community[:3])
 
         # 2nd game state
-        bet(2, players, raised, pot, money, player_place)
+        bet(2, player_count, raised, pot, money, player_place)
         print(community[3])
 
         # 3rd game state
-        bet(3, players, raised, pot, money, player_place)
+        bet(3, player_count, raised, pot, money, player_place)
         print(community[4])
 
         # 4th game state
-        bet(4, players, raised, pot, money, player_place)
-        result(players, combination, pot, hands, community, money)
+        bet(4, player_count, raised, pot, money, player_place)
+        result(player_count, combination, pot, hands, community, money)
 
         print(money)
-        input("Next:")
+
+        if input("If you want to end the game type in \'exit\'").lower() == "exit":
+            break
+
+    print("The game is over!")
+    time.sleep(3)
 
 
 if __name__ == '__main__':
