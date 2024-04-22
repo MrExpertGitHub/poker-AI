@@ -21,7 +21,7 @@ def result(players, combination, pot, hands, community, money):
     numbers_cf = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     flush_suit = 0
     first_flush = True
-    
+
     for hand in range(5):
         suits_c[community[hand][0]] += 1
         numbers_c[community[hand][1] - 2] += 1
@@ -54,13 +54,13 @@ def result(players, combination, pot, hands, community, money):
                             if community[j][0] == flush_suit:
                                 numbers_cf[community[j][1] - 2] += 1
                         first_flush = False
-                    numbersf = numbers_cf[:]
+                    number_s_f = numbers_cf[:]
                     for j in range(2):
                         if hands[hand][j][0] == flush_suit:
-                            numbersf[hands[hand][j][1] - 2] += 1
+                            number_s_f[hands[hand][j][1] - 2] += 1
                     length = 0
                     for j in range(14):
-                        if numbersf[12 - j] > 0:
+                        if number_s_f[12 - j] > 0:
                             if len(combination[hand]) != 6:
                                 combination[hand].append(14 - j)
                             length += 1
@@ -151,23 +151,23 @@ def result(players, combination, pot, hands, community, money):
         if combination[hand][:len(combination[hand + 1]) - 2] == combination[hand - 1][:len(combination[hand]) - 2]:
             combination[hand][-1] = combination[hand - 1][-1]
     print(hands[1:players])
-    wnumber = 0
+    w_number = 0
     for hand in range(players):
         if combination[hand][-1] == 1:
-            wnumber += 1
+            w_number += 1
         else:
             break
-    for hand in range(wnumber):
-        money[combination[hand][-2] - 1] += pot[0] / wnumber
+    for hand in range(w_number):
+        money[combination[hand][-2] - 1] += pot[0] / w_number
 
 
 def bet(which, players: int, raised, pot, money, player_place):
     not_raised: int = 0
-    while not_raised < players:
-        player_id: int = 2
+    player_id: int = 2
+    counter: int = 0
+    while not_raised < players and counter != players - 1:
         if pot[player_id % players + 1][1]:
             if player_id % players == player_place:
-
                 match player_id % players + 1:
                     case 1:
                         print("You are the small blind!")
@@ -180,20 +180,26 @@ def bet(which, players: int, raised, pot, money, player_place):
                 print(f"Your bet must be raised up to {raised}!")
 
                 a: int = int(input("Raise:\n"))
-
-                if a + pot[player_id % players + 1][0] < raised:
-                    pot[player_id % players + 1][1] = False
             else:
                 a = ai(player_id % players + 1, which)
-            if pot[player_id % players + 1][1]:
-                pot[player_id % players + 1][1] = False
-                print(player_id % players + 1, "folded")
+            if a + pot[player_id % players + 1][0] <= raised:
+                counter += 1
             else:
+                counter = 0
+            if a + pot[player_id % players + 1][0] < raised:
+                pot[player_id % players + 1][1] = False
+            if pot[player_id % players + 1][1]:
                 pot[0] += int(a)
                 raised += int(a) - raised + pot[player_id % players + 1][0]
                 pot[player_id % players + 1][0] += int(a)
                 money[player_id % players] -= int(a)
+
+            else:
+                print(player_id % players + 1, "folded")
+        else:
+            counter += 1
         player_id += 1
+        print(counter)
 
 
 def ai(player, which):
@@ -209,7 +215,7 @@ def main():
     # The second player is the big blind
 
     player_count: int = int(input("How many players are playing?\n"))  # Number of players
-    
+
     money = []
 
     # Gives every player 1000 money
@@ -223,14 +229,13 @@ def main():
         for i in range(player_count):
             pot.append([0, True])
         player_place: int = random.randint(0, player_count - 1)
-
         deck = \
             [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 11], [0, 12], [0, 13],
-             [0, 14], 
+             [0, 14],
              [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10], [1, 11], [1, 12], [1, 13],
-             [1, 14], 
+             [1, 14],
              [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [2, 10], [2, 11], [2, 12], [2, 13],
-             [2, 14], 
+             [2, 14],
              [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13],
              [3, 14]]
 
@@ -239,7 +244,7 @@ def main():
 
         combination = []
         deal(player_count, hands, deck, community)
-        print("In your hand:", str(hands[0]).strip(), sep='\n')
+        print("In your hand:", str(hands[player_place]).strip(), sep='\n')
         pot[1][0] = 50
         money[0] -= 50
         pot[2][0] = 100
